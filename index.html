@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abba's Delight - Premium Bakery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: #F59E0B;
+            color: #000;
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+        .logo::before {
+            content: "";
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            background: #F59E0B;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+        }
+        .menu-open {
+            transform: translateX(0);
+        }
+        .menu-closed {
+            transform: translateX(100%);
+        }
+        .cart-item {
+            transition: all 0.3s ease;
+        }
+        .cart-item-remove {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .cart-item:hover .cart-item-remove {
+            opacity: 1;
+        }
+        .order-summary-item {
+            border-bottom: 1px solid #FDE68A;
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .order-summary-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body class="bg-amber-50">
+    <!-- Navigation -->
+    <nav class="bg-black text-amber-50 p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="logo">AD</div>
+                <span class="font-display text-2xl font-bold">Abba's Delight</span>
+            </div>
+            
+            <div class="hidden md:flex space-x-8">
+                <a href="#" class="hover:text-amber-300">Home</a>
+                <a href="#about" class="hover:text-amber-300">About</a>
+                <a href="#menu" class="hover:text-amber-300">Menu</a>
+                <a href="#specialties" class="hover:text-amber-300">Specialties</a>
+                <a href="#contact" class="hover:text-amber-300">Contact</a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <a href="#order" class="bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 px-6 rounded-full transition hidden md:block">
+                    Order Now <i data-feather="shopping-cart" class="inline ml-1"></i>
+                </a>
+                
+                <button id="mobile-menu-button" class="md:hidden text-amber-50">
+                    <i data-feather="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="mobile-menu menu-closed fixed top-0 right-0 h-full w-64 bg-black p-6 z-50 md:hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center space-x-2">
+                    <div class="logo">AD</div>
+                    <span class="font-display text-xl font-bold">Abba's Delight</span>
+                </div>
+                <button id="close-menu" class="text-amber-50">
+                    <i data-feather="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <a href="#" class="block hover:text-amber-300 text-lg">Home</a>
+                <a href="#about" class="block hover:text-amber-300 text-lg">About</a>
+                <a href="#menu" class="block hover:text-amber-300 text-lg">Menu</a>
+                <a href="#specialties" class="block hover:text-amber-300 text-lg">Specialties</a>
+                <a href="#contact" class="block hover:text-amber-300 text-lg">Contact</a>
+                <a href="#order" class="block bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 px-6 rounded-full transition text-center mt-8">
+                    Order Now <i data-feather="shopping-cart" class="inline ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg h-screen flex items-center justify-center text-amber-50 px-4">
+        <div class="text-center max-w-4xl" data-aos="fade-up">
+            <h1 class="font-display text-5xl md:text-7xl font-bold mb-4">Where every bite is a delight</h1>
+            <p class="text-xl mb-8">Premium bakery goods delivered fresh to your door</p>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <a href="#menu" class="bg-amber-500 hover:bg-amber-600 text-black font-bold py-3 px-8 text-lg rounded-full transition">
+                    View Menu
+                </a>
+                <a href="#order" class="border border-amber-300 hover:bg-black hover:border-black text-amber-300 font-bold py-3 px-8 text-lg rounded-full transition">
+                    Order Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 px-4 bg-white">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="font-display text-4xl font-bold mb-4">Our Story</h2>
+                <div class="w-24 h-1 bg-amber-500 mx-auto"></div>
+            </div>
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2" data-aos="fade-right">
+                    <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80" alt="Bakery kitchen" class="rounded-lg shadow-xl w-full h-auto">
+                </div>
+                <div class="md:w-1/2" data-aos="fade-left">
+                    <h3 class="font-display text-2xl font-bold mb-4">Family Tradition Since 2005</h3>
+                    <p class="mb-6">Abba's Delight was founded with a simple mission: to create delicious baked goods using time-honored family recipes with the finest ingredients. What started as a small home bakery has grown into a beloved brand serving hundreds of happy customers.</p>
+                    <p class="mb-6">Each morning, our bakers craft fresh batches of our signature pies, rolls, and pastries with the same care and attention we've used for generations.</p>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <i data-feather="check-circle" class="text-amber-500 mr-3 mt-1"></i>
+                            <span class="font-medium">Freshly made daily with premium ingredients</span>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-feather="check-circle" class="text-amber-500 mr-3 mt-1"></i>
+                            <span class="font-medium">Hygienically prepared in our professional kitchen</span>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-feather="check-circle" class="text-amber-500 mr-3 mt-1"></i>
+                            <span class="font-medium">Fast delivery to your home or event</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="py-20 px-4 bg-amber-50">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="font-display text-4xl font-bold mb-4">Our Menu</h2>
+                <div class="w-24 h-1 bg-amber-500 mx-auto"></div>
+                <p class="mt-6">Prices shown are per piece unless otherwise specified</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Savory Items -->
+                <div class="bg-white p-8 rounded-lg shadow-xl" data-aos="fade-right">
+                    <h3 class="font-display text-2xl font-bold mb-6 text-center border-b-2 border-amber-500 pb-3">Savory Delights</h3>
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center cart-item" data-id="1" data-name="Meat Pie" data-price="2.50">
+                            <div>
+                                <h4 class="font-bold">Meat Pie</h4>
+                                <p class="text-gray-600 text-sm">Flaky pastry with spiced minced meat</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="font-bold mr-3">$2.50</span>
+                                <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center cart-item" data-id="2" data-name="Sausage Roll" data-price="2.30">
+                            <div>
+                                <h4 class="font-bold">Sausage Roll</h4>
+                                <p class="text-gray-600 text-sm">Premium sausage wrapped in puff pastry</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="font-bold mr-3">$2.30</span>
+                                <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center cart-item" data-id="3" data-name="Chicken Pie" data-price="2.80">
+                            <div>
+                                <h4 class="font-bold">Chicken Pie</h4>
+                                <p class="text-gray-600 text-sm">Tender chicken pieces in rich pastry</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="font-bold mr-3">$2.80</span>
+                                <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center cart-item" data-id="4" data-name="Fish Roll" data-price="2.40">
+                            <div>
+                                <h4 class="font-bold">Fish Roll</h4>
+                                <p class="text-gray-600 text-sm">Seasoned fish in golden dough</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="font-bold mr-3">$2.40</span>
+                                <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sweet Items -->
+                <div class="bg-white p-8 rounded-lg shadow-xl" data-aos="fade-left">
+                    <h3 class="font-display text-2xl font-bold mb-6 text-center border-b-2 border-amber-500 pb-3">Sweet Treats</h3>
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center cart-item" data-id="5" data-name="Puff-Puff" data-price="1.50">
+                            <div>
+                                <h4 class="font-bold">Puff-Puff</h4>
+                                <p class="text-gray-600 text-sm">Classic African doughnut balls</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="font-bold mr-3">$1.50</span>
+                                <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center cart-item" data-id="6" data-name="Chin-Chin" data-price="3.50" data-unit="100g">
+                            <div>
+                                <h4 class="font-bold">Chin-Chin</h4>
+                                <p class="text-gray-600 text-sm">Crunchy fried pastry bites (100g)</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="font-bold mr-3">$3.50</span>
+                                <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center cart-item" data-id="7" data-name="Mini Donuts" data-price="8.00" data-unit="6pc">
+                            <div>
+                                <h4 class="font-bold">Mini Donuts</h4>
+                                <p class="text-gray-600 text-sm">Assorted glazed donuts (6pc)</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="font-bold mr-3">$8.00</span>
+                                <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center cart-item" data-id="8" data-name="Custard Tart" data-price="3.00">
+                            <div>
+                                <h4 class="font-bold">Custard Tart</h4>
+                                <p class="text-gray-600 text-sm">Crème-filled pastry with nutmeg</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="font-bold mr-3">$3.00</span>
+                                <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-16 text-center" data-aos="fade-up">
+                <a href="#order" class="bg-amber-500 hover:bg-amber-600 text-black font-bold py-3 px-8 text-lg rounded-full transition inline-block">
+                    Order Your Favorites
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Specialties Section -->
+    <section id="specialties" class="py-20 px-4 bg-white">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="font-display text-4xl font-bold mb-4">Our Specialties</h2>
+                <div class="w-24 h-1 bg-amber-500 mx-auto"></div>
+                <p class="mt-6">Perfect for your special occasions and events</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-amber-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="0">
+                    <div class="text-amber-600 mb-4">
+                        <i data-feather="cake" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold mb-3">Wedding Cakes</h3>
+                    <p class="mb-4">Exquisite designs to make your special day unforgettable. Custom flavors and decorations available.</p>
+                    <a href="#contact" class="text-amber-600 font-semibold hover:underline">Inquire Now</a>
+                </div>
+                
+                <div class="bg-amber-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-amber-600 mb-4">
+                        <i data-feather="gift" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold mb-3">Birthday Cakes</h3>
+                    <p class="mb-4">Celebrate in style with our creative cake designs. From classic to custom themed creations.</p>
+                    <a href="#contact" class="text-amber-600 font-semibold hover:underline">Inquire Now</a>
+                </div>
+                
+                <div class="bg-amber-50 p-8 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-amber-600 mb-4">
+                        <i data-feather="users" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold mb-3">Event Catering</h3>
+                    <p class="mb-4">Complete dessert and pastry catering for corporate events, parties, and gatherings of all sizes.</p>
+                    <a href="#contact" class="text-amber-600 font-semibold hover:underline">Inquire Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="py-20 px-4 bg-black text-amber-50">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="font-display text-4xl font-bold mb-4">Our Gallery</h2>
+                <div class="w-24 h-1 bg-amber-500 mx-auto"></div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="overflow-hidden rounded-lg" data-aos="fade-up">
+                    <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1089&q=80" alt="Cake" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="50">
+                    <img src="https://images.unsplash.com/photo-1555507036-ab794f24d9c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80" alt="Pastries" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="100">
+                    <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1108&q=80" alt="Bakery" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="150">
+                    <img src="https://images.unsplash.com/photo-1608190003443-86b2630e4a0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80" alt="Pie" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="200">
+                    <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80" alt="Bread" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="250">
+                    <img src="https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Dessert" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-20 px-4 bg-white">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="font-display text-4xl font-bold mb-4">What Our Customers Say</h2>
+                <div class="w-24 h-1 bg-amber-500 mx-auto"></div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-amber-50 p-8 rounded-lg" data-aos="fade-up" data-aos-delay="0">
+                    <div class="flex items-center mb-4">
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                    </div>
+                    <p class="mb-6 font-medium">"The meat pies from Abba's Delight are absolutely delicious! Always fresh and perfectly spiced. My weekly order is a must."</p>
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80" alt="Customer" class="w-12 h-12 rounded-full object-cover mr-4">
+                        <div>
+                            <h4 class="font-bold">Sarah K.</h4>
+                            <p class="text-gray-600 text-sm">Regular Customer</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-amber-50 p-8 rounded-lg" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center mb-4">
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                    </div>
+                    <p class="mb-6 font-medium">"Our wedding cake was beyond beautiful and tasted incredible. So many compliments from our guests. Thank you!"</p>
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Customer" class="w-12 h-12 rounded-full object-cover mr-4">
+                        <div>
+                            <h4 class="font-bold">Michael & Ada</h4>
+                            <p class="text-gray-600 text-sm">Wedding Clients</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-amber-50 p-8 rounded-lg" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center mb-4">
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
+                    </div>
+                    <p class="mb-6 font-medium">"Reliable delivery every time. The chin-chin is addictive and the perfect snack for my office. Bulk orders are so convenient."</p>
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Customer" class="w-12 h-12 rounded-full object-cover mr-4">
+                        <div>
+                            <h4 class="font-bold">David M.</h4>
+                            <p class="text-gray-600 text-sm">Corporate Customer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Section -->
+    <section id="order" class="py-20 px-4 bg-amber-500">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="font-display text-4xl font-bold mb-4 text-white">Order Online</h2>
+                <div class="w-24 h-1 bg-black mx-auto"></div>
+                <p class="mt-6 text-amber-900 font-medium">Freshly baked & delivered to your door</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-4xl mx-auto" data-aos="fade-up">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold mb-6">Delivery Information</h3>
+                        <form id="order-form" class="space-y-4">
+                            <div>
+                                <label class="block text-gray-700 mb-1">Full Name *</label>
+                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Phone Number *</label>
+                                <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Delivery Address *</label>
+                                <textarea required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Delivery Date & Time *</label>
+                                <input type="datetime-local" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Special Instructions</label>
+                                <textarea class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-display text-2xl font-bold mb-6">Your Order</h3>
+                        <div class="bg-amber-50 rounded-lg p-6 mb-6">
+                            <div id="order-summary" class="space-y-4 mb-6">
+                                <p class="text-center text-gray-500 py-4">Your cart is empty</p>
+                            </div>
+                            <div class="border-t border-amber-200 pt-4">
+                                <div class="flex justify-between font-bold">
+                                    <p>Total</p>
+                                    <p id="order-total">$0.00</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="complete-order" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg transition opacity-50 cursor-not-allowed" disabled>
+                            Complete Order <i data-feather="arrow-right" class="inline ml-2"></i>
+                        </button>
+                        
+                        <p class="mt-6 text-sm text-gray-600">We'll contact you to confirm your order details and payment method.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 px-4 bg-white">
+        <div class="container mx-auto max-w-6xl">
+            <div class="flex flex-col md:flex-row gap-12">
+                <div class="md:w-1/2" data-aos="fade-right">
+                    <div class="text-center mb-12 md:text-left">
+                        <h2 class="font-display text-4xl font-bold mb-4">Get In Touch</h2>
+                        <div class="w-24 h-1 bg-amber-500 md:mx-0 mx-auto"></div>
+                        <p class="mt-6">Have questions or want to place a large order? Contact us!</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <i data-feather="phone" class="text-amber-500 mr-4 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold">Phone</h4>
+                                <p>+375 255 266 598</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-feather="mail" class="text-amber-500 mr-4 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold">Email</h4>
+                                <p>orders@abbadelight.com</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-feather="instagram" class="text-amber-500 mr-4 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold">Instagram</h4>
+                                <p>@abbasdelight</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-feather="clock" class="text-amber-500 mr-4 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold">Order Hours</h4>
+                                <p>Monday - Friday: 8am - 7pm<br>Saturday: 9am - 4pm</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h4 class="font-bold mb-4">Follow Us</h4>
+                        <div class="flex space-x-4">
+                            <a href="#" class="bg-black text-white p-3 rounded-full hover:bg-gray-800 transition">
+                                <i data-feather="facebook"></i>
+                            </a>
+                            <a href="#" class="bg-black text-white p-3 rounded-full hover:bg-gray-800 transition">
+                                <i data-feather="instagram"></i>
+                            </a>
+                            <a href="#" class="bg-black text-white p-3 rounded-full hover:bg-gray-800 transition">
+                                <i data-feather="twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2" data-aos="fade-left">
+                    <div class="bg-amber-50 rounded-lg p-8">
+                        <h3 class="font-display text-2xl font-bold mb-6">Send Us a Message</h3>
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-gray-700 mb-1">Your Name</label>
+                                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Email Address</label>
+                                <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Subject</label>
+                                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Message</label>
+                                <textarea rows="4" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+                            <button type="submit" class="bg-black hover:bg-gray-800 text-white font-bold py-3 px-6 rounded transition">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-8 bg-amber-100 rounded-lg p-8">
+                        <h3 class="font-display text-2xl font-bold mb-4">Newsletter Signup</h3>
+                        <p class="mb-4">Stay updated with our new menu items and special offers!</p>
+                        <form class="flex">
+                            <input type="email" placeholder="Your email address" class="flex-grow px-4 py-2 rounded-l focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <button type="submit" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-r">
+                                Subscribe
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black text-amber-50 py-12 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="logo">AD</div>
+                        <span class="font-display text-xl font-bold">Abba's Delight</span>
+                    </div>
+                    <p class="mb-4">Where every bite is a delight.</p>
+                    <p>Premium bakery goods delivered fresh to your door.</p>
+                </div>
+                <div>
+                    <h4 class="font-display text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-amber-300 transition">Home</a></li>
+                        <li><a href="#menu" class="hover:text-amber-300 transition">Menu</a></li>
+                        <li><a href="#specialties" class="hover:text-amber-300 transition">Specialties</a></li>
+                        <li><a href="#about" class="hover:text-amber-300 transition">About Us</a></li>
+                        <li><a href="#contact" class="hover:text-amber-300 transition">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-display text-lg font-bold mb-4">Our Menu</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-amber-300 transition">Savory Items</a></li>
+                        <li><a href="#" class="hover:text-amber-300 transition">Sweet Treats</a></li>
+                        <li><a href="#" class="hover:text-amber-300 transition">Birthday Cakes</a></li>
+                        <li><a href="#" class="hover:text-amber-300 transition">Wedding Cakes</a></li>
+                        <li><a href="#" class="hover:text-amber-300 transition">Bulk Orders</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-display text-lg font-bold mb-4">Contact Us</h4>
+                    <address class="not-italic space-y-2">
+                        <p>+375 255 266 598</p>
+                        <p>orders@abbasdelight.com</p>
+                        <p>@abbasdelight</p>
+                        <p>Delivery available within the city</p>
+                    </address>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p>&copy; 2023 Abba's Delight. All rights reserved.</p>
+                <p class="mt-4 md:mt-0">Website by Abba's Delight Team</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize AOS and Feather Icons
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init();
+            feather.replace();
+            
+            // Mobile menu functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeMenuButton = document.getElementById('close-menu');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.remove('menu-closed');
+                mobileMenu.classList.add('menu-open');
+            });
+            
+            closeMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.remove('menu-open');
+                mobileMenu.classList.add('menu-closed');
+            });
+            
+            // Cart functionality
+            const cart = [];
+            const orderSummary = document.getElementById('order-summary');
+            const orderTotal = document.getElementById('order-total');
+            const completeOrderButton = document.getElementById('complete-order');
+            
+            // Add to cart buttons
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemElement = this.closest('.cart-item');
+                    const id = itemElement.getAttribute('data-id');
+                    const name = itemElement.getAttribute('data-name');
+                    const price = parseFloat(itemElement.getAttribute('data-price'));
+                    const unit = itemElement.getAttribute('data-unit') || 'pc';
+                    
+                    // Check if item already exists in cart
+                    const existingItemIndex = cart.findIndex(item => item.id === id);
+                    
+                    if (existingItemIndex >= 0) {
+                        // Increment quantity if item exists
+                        cart[existingItemIndex].quantity += 1;
+                    } else {
+                        // Add new item to cart
+                        cart.push({
+                            id,
+                            name,
+                            price,
+                            unit,
+                            quantity: 1
+                        });
+                    }
+                    
+                    updateOrderSummary();
+                });
+            });
+            
+            // Update order summary
+            function updateOrderSummary() {
+                if (cart.length === 0) {
+                    orderSummary.innerHTML = '<p class="text-center text-gray-500 py-4">Your cart is empty</p>';
+                    orderTotal.textContent = '$0.00';
+                    completeOrderButton.disabled = true;
+                    completeOrderButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    return;
+                }
+                
+                let summaryHTML = '';
+                let total = 0;
+                
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    
+                    summaryHTML += `
+                        <div class="order-summary-item flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">${item.name} (${item.quantity}${item.unit === 'pc' ? 'pc' : ''})</p>
+                                <button class="remove-item text-sm text-amber-600 hover:text-amber-800" data-id="${item.id}">
+                                    Remove
+                                </button>
+                            </div>
+                            <p>$${itemTotal.toFixed(2)}</p>
+                        </div>
+                    `;
+                });
+                
+                orderSummary.innerHTML = summaryHTML;
+                orderTotal.textContent = `$${total.toFixed(2)}`;
+                
+                completeOrderButton.disabled = false;
+                completeOrderButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                // Add event listeners to remove buttons
+                const removeButtons = document.querySelectorAll('.remove-item');
+                removeButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const itemId = this.getAttribute('data-id');
+                        const itemIndex = cart.findIndex(item => item.id === itemId);
+                        
+                        if (itemIndex >= 0) {
+                            cart.splice(itemIndex, 1);
+                            updateOrderSummary();
+                        }
+                    });
+                });
+            }
+            
+            // Complete order button
+            completeOrderButton.addEventListener('click', function() {
+                const form = document.getElementById('order-form');
+                const formData = new FormData(form);
+                
+                // Simple form validation
+                let isValid = true;
+                form.querySelectorAll('input[required], textarea[required]').forEach(input => {
+                    if (!input.value.trim()) {
+                        isValid = false;
+                        input.classList.add('border-red-500');
+                    } else {
+                        input.classList.remove('border-red-500');
+                    }
+                });
+                
+                if (!isValid) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+                
+                // In a real application, you would send the order data to a server here
+                alert('Thank you for your order! We will contact you shortly to confirm details.');
+                
+                // Reset cart and form
+                cart.length = 0;
+                updateOrderSummary();
+                form.reset();
+            });
+        });
+    </script>
+</body>
+</html>
