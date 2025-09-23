@@ -270,7 +270,7 @@
                 </div>
                 <div class="mt-4">
                     <label class="block text-sm font-medium mb-1">Notification Email</label>
-                    <input type="email" id="vendor-notification-email" value="orders@0xhephzibah@gmail.com" class="w-full p-2 border rounded">
+                    <input type="email" id="vendor-notification-email" value="0xhephzibah@gmail.com" class="w-full p-2 border rounded">
                 </div>
                 <button id="vendor-save-settings" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 px-4 rounded mt-4">
                     Save Settings
@@ -395,7 +395,7 @@
                 <div class="bg-white p-8 rounded-lg shadow-xl" data-aos="fade-right">
                     <h3 class="font-display text-2xl font-bold mb-6 text-center border-b-2 border-amber-500 pb-3">Savory Delights</h3>
                     <div class="space-y-6">
-                        <div class="flex justify-between items-center cart-item" data-id="1" data-name="Meat Pie" data-price="2.50">
+                        <div class="flex justify-between items-center cart-item" data-id="1" data-name="Meat Pie" data-price="1.50">
                             <div>
                                 <h4 class="font-bold">Meat Pie</h4>
                                 <p class="text-gray-600 text-sm">Flaky pastry with spiced minced meat</p>
@@ -852,7 +852,7 @@
             function updateOrderSummary() {
                 if (cart.length === 0) {
                     orderSummary.innerHTML = '<p class="text-center text-gray-500 py-4">Your cart is empty</p>';
-                    orderTotal.textContent = '$0.00';
+                    orderTotal.textContent = '0.00₽';
                     completeOrderButton.disabled = true;
                     completeOrderButton.classList.add('opacity-50', 'cursor-not-allowed');
                     return;
@@ -873,13 +873,13 @@
                                     Remove
                                 </button>
                             </div>
-                            <p>$${itemTotal.toFixed(2)}</p>
+                            <p>${itemTotal.toFixed(2)}₽</p>
                         </div>
                     `;
                 });
                 
                 orderSummary.innerHTML = summaryHTML;
-                orderTotal.textContent = `$${total.toFixed(2)}`;
+                orderTotal.textContent = `${total.toFixed(2)}₽`;
                 
                 completeOrderButton.disabled = false;
                 completeOrderButton.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -940,7 +940,7 @@
                     deliveryTime,
                     specialInstructions,
                     items: [...cart],
-                    total: parseFloat(orderTotal.textContent.replace('$', '')),
+                    total: parseFloat(orderTotal.textContent.replace('₽', '')),
                     status: 'new',
                     timestamp: new Date().toISOString(),
                     messages: [] // Initialize empty messages array
@@ -998,7 +998,7 @@
                             <span class="text-xs ${getStatusClass(order.status)} px-2 py-1 rounded-full">${order.status}</span>
                         </div>
                         <p class="text-sm">${order.customerName}</p>
-                        <p class="text-sm">$${order.total.toFixed(2)}</p>
+                        <p class="text-sm">${order.total.toFixed(2)}₽</p>
                         <p class="text-xs text-gray-500">${new Date(order.timestamp).toLocaleString()}</p>
                     `;
                     
@@ -1023,11 +1023,11 @@
                     <div class="mt-3">
                         <strong>Items:</strong>
                         <ul class="list-disc list-inside mt-1">
-                            ${order.items.map(item => `<li>${item.quantity}x ${item.name} - $${(item.quantity * item.price).toFixed(2)}</li>`).join('')}
+                            ${order.items.map(item => `<li>${item.quantity}x ${item.name} - ${(item.quantity * item.price).toFixed(2)}₽</li>`).join('')}
                         </ul>
                     </div>
                     
-                    <p class="mt-3"><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+                    <p class="mt-3"><strong>Total:</strong> ${order.total.toFixed(2)}₽</p>
                     <p class="mt-1"><strong>Instructions:</strong> ${order.specialInstructions || 'None'}</p>
                 `;
                 
@@ -1176,7 +1176,7 @@
             
             // Send automatic confirmation message to customer
             function sendAutomaticConfirmation(order) {
-                const confirmationMessage = `Hi ${order.customerName}, thank you for your order #${order.id} from Abba's Delight! Your order has been received and is being processed. We'll contact you shortly with updates. Order total: $${order.total.toFixed(2)}.`;
+                const confirmationMessage = `Hi ${order.customerName}, thank you for your order #${order.id} from Abba's Delight! Your order has been received and is being processed. We'll contact you shortly with updates. Order total: ${order.total.toFixed(2)}₽.`;
                 
                 // Record the automatic confirmation message
                 recordCustomerMessage(order.id, 'Auto-Confirmation', confirmationMessage);
@@ -1215,7 +1215,7 @@
                 
                 // Send email notification if enabled
                 if (settings.emailNotifications !== false) { // Default to true
-                    const vendorEmail = settings.notificationEmail || 'orders@0xhephzibah@gmail.com';
+                    const vendorEmail = settings.notificationEmail || '0xhephzibah@gmail.com';
                     sendEmailNotification(order, vendorEmail);
                 }
                 
@@ -1242,9 +1242,9 @@ Delivery Address: ${order.customerAddress}
 Delivery Time: ${new Date(order.deliveryTime).toLocaleString()}
 
 Order Items:
-${order.items.map(item => `- ${item.quantity}x ${item.name} - $${(item.quantity * item.price).toFixed(2)}`).join('\n')}
+${order.items.map(item => `- ${item.quantity}x ${item.name} - ${(item.quantity * item.price).toFixed(2)}₽`).join('\n')}
 
-Total: $${order.total.toFixed(2)}
+Total: ${order.total.toFixed(2)}₽
 Special Instructions: ${order.specialInstructions || 'None'}
 
 Please prepare this order for delivery.
