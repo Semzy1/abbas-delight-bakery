@@ -75,9 +75,210 @@
             padding-bottom: 0;
             margin-bottom: 0;
         }
+        .vendor-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .vendor-panel.open {
+            right: 0;
+        }
+        .vendor-toggle {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: right top;
+            background: #F59E0B;
+            color: black;
+            padding: 10px 15px;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            z-index: 999;
+            font-weight: bold;
+        }
+        .order-status-new { background-color: #FEF3C7; color: #D97706; }
+        .order-status-preparing { background-color: #DBEAFE; color: #1D4ED8; }
+        .order-status-ready { background-color: #D1FAE5; color: #065F46; }
+        .order-status-completed { background-color: #E5E7EB; color: #374151; }
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #EF4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .message-template {
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .message-template:hover {
+            background-color: #FEF3C7;
+            border-color: #F59E0B;
+        }
+        .message-template.active {
+            background-color: #FEF3C7;
+            border-color: #F59E0B;
+        }
+        .customer-message {
+            background-color: #F0F9FF;
+            border-left: 4px solid #0EA5E9;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body class="bg-amber-50">
+    <!-- Vendor Panel Toggle -->
+    <div class="vendor-toggle" id="vendor-toggle">
+        Vendor Panel
+    </div>
+
+    <!-- Vendor Panel -->
+    <div class="vendor-panel" id="vendor-panel">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-display text-2xl font-bold">Vendor Dashboard</h2>
+                <button id="close-vendor-panel" class="text-gray-500 hover:text-gray-700">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-amber-100 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-600">Today's Orders</p>
+                    <p class="text-2xl font-bold" id="vendor-today-orders">0</p>
+                </div>
+                <div class="bg-amber-100 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-600">Pending</p>
+                    <p class="text-2xl font-bold" id="vendor-pending-orders">0</p>
+                </div>
+            </div>
+
+            <!-- Orders List -->
+            <h3 class="font-bold mb-3">Recent Orders</h3>
+            <div id="vendor-orders-list" class="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                <!-- Orders will be populated here -->
+                <p class="text-center text-gray-500 py-4">No orders yet</p>
+            </div>
+
+            <!-- Order Details -->
+            <div id="vendor-order-details" class="hidden">
+                <h3 class="font-bold mb-3">Order Details</h3>
+                <div id="vendor-order-content" class="bg-amber-50 p-4 rounded-lg mb-4">
+                    <!-- Order details will be populated here -->
+                </div>
+                <div class="flex space-x-2 mb-4">
+                    <select id="vendor-order-status" class="flex-grow p-2 border rounded">
+                        <option value="new">New</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <button id="vendor-update-status" class="bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 px-4 rounded">
+                        Update
+                    </button>
+                </div>
+                
+                <!-- Customer Communication -->
+                <div class="border-t pt-4 mt-4">
+                    <h3 class="font-bold mb-3">Contact Customer</h3>
+                    
+                    <!-- Quick Message Templates -->
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Quick Messages:</p>
+                        <div class="space-y-2">
+                            <div class="message-template" data-template="order-confirmed">
+                                <p class="font-medium">Order Confirmation</p>
+                                <p class="text-sm text-gray-600">Hi [Customer], your order #[OrderID] has been confirmed.</p>
+                            </div>
+                            <div class="message-template" data-template="order-ready">
+                                <p class="font-medium">Order Ready</p>
+                                <p class="text-sm text-gray-600">Hi [Customer], your order #[OrderID] is ready for pickup/delivery.</p>
+                            </div>
+                            <div class="message-template" data-template="delivery-update">
+                                <p class="font-medium">Delivery Update</p>
+                                <p class="text-sm text-gray-600">Hi [Customer], your order #[OrderID] is on its way.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Message -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Custom Message:</label>
+                        <textarea id="vendor-custom-message" rows="3" class="w-full p-2 border rounded" placeholder="Type your message to the customer..."></textarea>
+                    </div>
+                    
+                    <!-- Communication Options -->
+                    <div class="flex space-x-2">
+                        <button id="vendor-send-email" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+                            <i data-feather="mail" class="w-4 h-4 mr-2"></i> Email
+                        </button>
+                        <button id="vendor-send-whatsapp" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded flex items-center justify-center">
+                            <i data-feather="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp
+                        </button>
+                    </div>
+                    
+                    <!-- Message History -->
+                    <div class="mt-6">
+                        <h4 class="font-bold mb-2">Message History</h4>
+                        <div id="vendor-message-history" class="max-h-40 overflow-y-auto">
+                            <!-- Message history will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="mt-6 pt-6 border-t">
+                <h3 class="font-bold mb-3">Notification Settings</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span>Email Notifications</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="vendor-email-notifications" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Sound Alerts</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="vendor-sound-alerts" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                        </label>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium mb-1">Notification Email</label>
+                    <input type="email" id="vendor-notification-email" value="orders@0xhephzibah@gmail.com" class="w-full p-2 border rounded">
+                </div>
+                <button id="vendor-save-settings" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 px-4 rounded mt-4">
+                    Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="bg-black text-amber-50 p-4 sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
@@ -200,7 +401,7 @@
                                 <p class="text-gray-600 text-sm">Flaky pastry with spiced minced meat</p>
                             </div>
                             <div class="flex items-center">
-                                <span class="font-bold mr-3">$2.50</span>
+                                <span class="font-bold mr-3">1.50₽</span>
                                 <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
                                     Add
                                 </button>
@@ -212,7 +413,7 @@
                                 <p class="text-gray-600 text-sm">Premium sausage wrapped in puff pastry</p>
                             </div>
                             <div class="flex items-center">
-                                <span class="font-bold mr-3">$2.30</span>
+                                <span class="font-bold mr-3">2.30₽</span>
                                 <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
                                     Add
                                 </button>
@@ -224,7 +425,7 @@
                                 <p class="text-gray-600 text-sm">Tender chicken pieces in rich pastry</p>
                             </div>
                             <div class="flex items-center">
-                                <span class="font-bold mr-3">$2.80</span>
+                                <span class="font-bold mr-3">2.80₽</span>
                                 <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
                                     Add
                                 </button>
@@ -236,7 +437,7 @@
                                 <p class="text-gray-600 text-sm">Seasoned fish in golden dough</p>
                             </div>
                             <div class="flex items-center">
-                                <span class="font-bold mr-3">$2.40</span>
+                                <span class="font-bold mr-3">2.40₽</span>
                                 <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
                                     Add
                                 </button>
@@ -255,7 +456,7 @@
                                 <p class="text-gray-600 text-sm">Classic African doughnut balls</p>
                             </div>
                             <div class="flex items-center">
-                                <span class="font-bold mr-3">$1.50</span>
+                                <span class="font-bold mr-3">1.50₽</span>
                                 <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
                                     Add
                                 </button>
@@ -267,7 +468,7 @@
                                 <p class="text-gray-600 text-sm">Crunchy fried pastry bites (100g)</p>
                             </div>
                             <div class="flex items-center">
-                                <span class="font-bold mr-3">$3.50</span>
+                                <span class="font-bold mr-3">3.50₽</span>
                                 <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
                                     Add
                                 </button>
@@ -279,7 +480,7 @@
                                 <p class="text-gray-600 text-sm">Assorted glazed donuts (6pc)</p>
                             </div>
                             <div class="flex items-center">
-                                <span class="font-bold mr-3">$8.00</span>
+                                <span class="font-bold mr-3">8.00₽</span>
                                 <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
                                     Add
                                 </button>
@@ -291,7 +492,7 @@
                                 <p class="text-gray-600 text-sm">Crème-filled pastry with nutmeg</p>
                             </div>
                             <div class="flex items-center">
-                                <span class="font-bold mr-3">$3.00</span>
+                                <span class="font-bold mr-3">3.00₽</span>
                                 <button class="add-to-cart bg-amber-500 hover:bg-amber-600 text-black font-bold py-1 px-3 rounded-full text-sm transition">
                                     Add
                                 </button>
@@ -349,103 +550,6 @@
         </div>
     </section>
 
-    <!-- Gallery Section -->
-    <section class="py-20 px-4 bg-black text-amber-50">
-        <div class="container mx-auto max-w-6xl">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="font-display text-4xl font-bold mb-4">Our Gallery</h2>
-                <div class="w-24 h-1 bg-amber-500 mx-auto"></div>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="overflow-hidden rounded-lg" data-aos="fade-up">
-                    <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1089&q=80" alt="Cake" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
-                </div>
-                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="50">
-                    <img src="https://images.unsplash.com/photo-1555507036-ab794f24d9c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80" alt="Pastries" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
-                </div>
-                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="100">
-                    <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1108&q=80" alt="Bakery" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
-                </div>
-                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="150">
-                    <img src="https://images.unsplash.com/photo-1608190003443-86b2630e4a0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80" alt="Pie" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
-                </div>
-                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="200">
-                    <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80" alt="Bread" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
-                </div>
-                <div class="overflow-hidden rounded-lg" data-aos="fade-up" data-aos-delay="250">
-                    <img src="https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Dessert" class="w-full h-48 object-cover hover:scale-105 transition duration-500">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="py-20 px-4 bg-white">
-        <div class="container mx-auto max-w-6xl">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="font-display text-4xl font-bold mb-4">What Our Customers Say</h2>
-                <div class="w-24 h-1 bg-amber-500 mx-auto"></div>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-amber-50 p-8 rounded-lg" data-aos="fade-up" data-aos-delay="0">
-                    <div class="flex items-center mb-4">
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                    </div>
-                    <p class="mb-6 font-medium">"The meat pies from Abba's Delight are absolutely delicious! Always fresh and perfectly spiced. My weekly order is a must."</p>
-                    <div class="flex items-center">
-                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80" alt="Customer" class="w-12 h-12 rounded-full object-cover mr-4">
-                        <div>
-                            <h4 class="font-bold">Sarah K.</h4>
-                            <p class="text-gray-600 text-sm">Regular Customer</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-amber-50 p-8 rounded-lg" data-aos="fade-up" data-aos-delay="100">
-                    <div class="flex items-center mb-4">
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                    </div>
-                    <p class="mb-6 font-medium">"Our wedding cake was beyond beautiful and tasted incredible. So many compliments from our guests. Thank you!"</p>
-                    <div class="flex items-center">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Customer" class="w-12 h-12 rounded-full object-cover mr-4">
-                        <div>
-                            <h4 class="font-bold">Michael & Ada</h4>
-                            <p class="text-gray-600 text-sm">Wedding Clients</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-amber-50 p-8 rounded-lg" data-aos="fade-up" data-aos-delay="200">
-                    <div class="flex items-center mb-4">
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                        <i data-feather="star" class="text-amber-500 w-5 h-5 fill-amber-500"></i>
-                    </div>
-                    <p class="mb-6 font-medium">"Reliable delivery every time. The chin-chin is addictive and the perfect snack for my office. Bulk orders are so convenient."</p>
-                    <div class="flex items-center">
-                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Customer" class="w-12 h-12 rounded-full object-cover mr-4">
-                        <div>
-                            <h4 class="font-bold">David M.</h4>
-                            <p class="text-gray-600 text-sm">Corporate Customer</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Order Section -->
     <section id="order" class="py-20 px-4 bg-amber-500">
         <div class="container mx-auto max-w-6xl">
@@ -462,23 +566,27 @@
                         <form id="order-form" class="space-y-4">
                             <div>
                                 <label class="block text-gray-700 mb-1">Full Name *</label>
-                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <input type="text" id="customer-name" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
                             </div>
                             <div>
                                 <label class="block text-gray-700 mb-1">Phone Number *</label>
-                                <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <input type="tel" id="customer-phone" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1">Email Address *</label>
+                                <input type="email" id="customer-email" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
                             </div>
                             <div>
                                 <label class="block text-gray-700 mb-1">Delivery Address *</label>
-                                <textarea required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                                <textarea id="customer-address" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
                             </div>
                             <div>
                                 <label class="block text-gray-700 mb-1">Delivery Date & Time *</label>
-                                <input type="datetime-local" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <input type="datetime-local" id="delivery-time" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500">
                             </div>
                             <div>
                                 <label class="block text-gray-700 mb-1">Special Instructions</label>
-                                <textarea class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                                <textarea id="special-instructions" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
                             </div>
                         </form>
                     </div>
@@ -492,7 +600,7 @@
                             <div class="border-t border-amber-200 pt-4">
                                 <div class="flex justify-between font-bold">
                                     <p>Total</p>
-                                    <p id="order-total">$0.00</p>
+                                    <p id="order-total">0.00₽</p>
                                 </div>
                             </div>
                         </div>
@@ -531,7 +639,7 @@
                             <i data-feather="mail" class="text-amber-500 mr-4 mt-1"></i>
                             <div>
                                 <h4 class="font-bold">Email</h4>
-                                <p>orders@0xhephzibah@gmail.com</p>
+                                <p>0xhephzibah@gmail.com</p>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -591,70 +699,23 @@
                             </button>
                         </form>
                     </div>
-                    
-                    <div class="mt-8 bg-amber-100 rounded-lg p-8">
-                        <h3 class="font-display text-2xl font-bold mb-4">Newsletter Signup</h3>
-                        <p class="mb-4">Stay updated with our new menu items and special offers!</p>
-                        <form class="flex">
-                            <input type="email" placeholder="Your email address" class="flex-grow px-4 py-2 rounded-l focus:outline-none focus:ring-2 focus:ring-amber-500">
-                            <button type="submit" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-r">
-                                Subscribe
-                            </button>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-black text-amber-50 py-12 px-4">
-        <div class="container mx-auto max-w-6xl">
-            <div class="grid md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="logo">AD</div>
-                        <span class="font-display text-xl font-bold">Abba's Delight</span>
-                    </div>
-                    <p class="mb-4">Where every bite is a delight.</p>
-                    <p>Premium bakery goods delivered fresh to your door.</p>
-                </div>
-                <div>
-                    <h4 class="font-display text-lg font-bold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="hover:text-amber-300 transition">Home</a></li>
-                        <li><a href="#menu" class="hover:text-amber-300 transition">Menu</a></li>
-                        <li><a href="#specialties" class="hover:text-amber-300 transition">Specialties</a></li>
-                        <li><a href="#about" class="hover:text-amber-300 transition">About Us</a></li>
-                        <li><a href="#contact" class="hover:text-amber-300 transition">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-display text-lg font-bold mb-4">Our Menu</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="hover:text-amber-300 transition">Savory Items</a></li>
-                        <li><a href="#" class="hover:text-amber-300 transition">Sweet Treats</a></li>
-                        <li><a href="#" class="hover:text-amber-300 transition">Birthday Cakes</a></li>
-                        <li><a href="#" class="hover:text-amber-300 transition">Wedding Cakes</a></li>
-                        <li><a href="#" class="hover:text-amber-300 transition">Bulk Orders</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-display text-lg font-bold mb-4">Contact Us</h4>
-                    <address class="not-italic space-y-2">
-                        <p>+375 255 266 598</p>
-                        <p>orders@abbasdelight.com</p>
-                        <p>@abbasdelight</p>
-                        <p>Delivery available within the city</p>
-                    </address>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-                <p>&copy; 2023 Abba's Delight. All rights reserved.</p>
-                <p class="mt-4 md:mt-0">Website by Abba's Delight Team</p>
-            </div>
+    <!-- Order Confirmation Modal -->
+    <div id="order-confirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-lg max-w-md text-center">
+            <i data-feather="check-circle" class="w-16 h-16 text-green-500 mx-auto mb-4"></i>
+            <h3 class="font-display text-2xl font-bold mb-2">Order Confirmed!</h3>
+            <p class="mb-4">Thank you for your order. We'll contact you shortly to confirm details.</p>
+            <p class="text-sm text-gray-600 mb-6">Order ID: <span id="confirmed-order-id"></span></p>
+            <button id="close-confirmation" class="bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 px-6 rounded-full transition">
+                Continue Shopping
+            </button>
         </div>
-    </footer>
+    </div>
 
     <script>
         // Initialize AOS and Feather Icons
@@ -677,11 +738,84 @@
                 mobileMenu.classList.add('menu-closed');
             });
             
-            // Cart functionality
+            // Vendor Panel Functionality
+            const vendorToggle = document.getElementById('vendor-toggle');
+            const vendorPanel = document.getElementById('vendor-panel');
+            const closeVendorPanel = document.getElementById('close-vendor-panel');
+            
+            vendorToggle.addEventListener('click', function() {
+                vendorPanel.classList.toggle('open');
+            });
+            
+            closeVendorPanel.addEventListener('click', function() {
+                vendorPanel.classList.remove('open');
+            });
+            
+            // Order Management
+            const orders = JSON.parse(localStorage.getItem('abbasDelightOrders')) || [];
             const cart = [];
             const orderSummary = document.getElementById('order-summary');
             const orderTotal = document.getElementById('order-total');
             const completeOrderButton = document.getElementById('complete-order');
+            const orderConfirmation = document.getElementById('order-confirmation');
+            const closeConfirmation = document.getElementById('close-confirmation');
+            const confirmedOrderId = document.getElementById('confirmed-order-id');
+            
+            // Vendor elements
+            const vendorOrdersList = document.getElementById('vendor-orders-list');
+            const vendorOrderDetails = document.getElementById('vendor-order-details');
+            const vendorOrderContent = document.getElementById('vendor-order-content');
+            const vendorUpdateStatus = document.getElementById('vendor-update-status');
+            const vendorOrderStatus = document.getElementById('vendor-order-status');
+            const vendorSendEmail = document.getElementById('vendor-send-email');
+            const vendorSendWhatsapp = document.getElementById('vendor-send-whatsapp');
+            const vendorCustomMessage = document.getElementById('vendor-custom-message');
+            const vendorSaveSettings = document.getElementById('vendor-save-settings');
+            const vendorMessageHistory = document.getElementById('vendor-message-history');
+            const messageTemplates = document.querySelectorAll('.message-template');
+            
+            // Stats elements
+            const vendorTodayOrders = document.getElementById('vendor-today-orders');
+            const vendorPendingOrders = document.getElementById('vendor-pending-orders');
+            
+            // Initialize vendor dashboard
+            updateVendorStats();
+            displayVendorOrders();
+            
+            // Message template selection
+            let selectedTemplate = null;
+            messageTemplates.forEach(template => {
+                template.addEventListener('click', function() {
+                    // Remove active class from all templates
+                    messageTemplates.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked template
+                    this.classList.add('active');
+                    selectedTemplate = this.dataset.template;
+                    
+                    // Set the custom message based on template
+                    const orderId = vendorUpdateStatus.dataset.orderId || '[OrderID]';
+                    const customerName = document.getElementById('vendor-order-content')?.textContent.includes('Customer:') 
+                        ? document.getElementById('vendor-order-content').textContent.split('Customer:')[1]?.split('\n')[0]?.trim() || '[Customer]'
+                        : '[Customer]';
+                    
+                    let message = '';
+                    switch(selectedTemplate) {
+                        case 'order-confirmed':
+                            message = `Hi ${customerName}, your order #${orderId} has been confirmed and is being prepared. We'll notify you when it's ready. Thank you for choosing Abba's Delight!`;
+                            break;
+                        case 'order-ready':
+                            message = `Hi ${customerName}, your order #${orderId} is ready for pickup/delivery. Please let us know your preferred method.`;
+                            break;
+                        case 'delivery-update':
+                            const deliveryTime = new Date();
+                            deliveryTime.setHours(deliveryTime.getHours() + 1);
+                            message = `Hi ${customerName}, your order #${orderId} is on its way. Estimated delivery time: ${deliveryTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}.`;
+                            break;
+                    }
+                    
+                    vendorCustomMessage.value = message;
+                });
+            });
             
             // Add to cart buttons
             const addToCartButtons = document.querySelectorAll('.add-to-cart');
@@ -768,7 +902,12 @@
             // Complete order button
             completeOrderButton.addEventListener('click', function() {
                 const form = document.getElementById('order-form');
-                const formData = new FormData(form);
+                const customerName = document.getElementById('customer-name').value;
+                const customerPhone = document.getElementById('customer-phone').value;
+                const customerEmail = document.getElementById('customer-email').value;
+                const customerAddress = document.getElementById('customer-address').value;
+                const deliveryTime = document.getElementById('delivery-time').value;
+                const specialInstructions = document.getElementById('special-instructions').value;
                 
                 // Simple form validation
                 let isValid = true;
@@ -786,14 +925,368 @@
                     return;
                 }
                 
-                // In a real application, you would send the order data to a server here
-                alert('Thank you for your order! We will contact you shortly to confirm details.');
+                if (cart.length === 0) {
+                    alert('Your cart is empty. Please add items before ordering.');
+                    return;
+                }
+                
+                // Create order object
+                const order = {
+                    id: 'AD' + Date.now(),
+                    customerName,
+                    customerPhone,
+                    customerEmail,
+                    customerAddress,
+                    deliveryTime,
+                    specialInstructions,
+                    items: [...cart],
+                    total: parseFloat(orderTotal.textContent.replace('$', '')),
+                    status: 'new',
+                    timestamp: new Date().toISOString(),
+                    messages: [] // Initialize empty messages array
+                };
+                
+                // Add to orders
+                orders.unshift(order);
+                localStorage.setItem('abbasDelightOrders', JSON.stringify(orders));
+                
+                // Send vendor notification
+                sendVendorNotification(order);
+                
+                // Send automatic confirmation message to customer
+                sendAutomaticConfirmation(order);
+                
+                // Show confirmation
+                confirmedOrderId.textContent = order.id;
+                orderConfirmation.classList.remove('hidden');
                 
                 // Reset cart and form
                 cart.length = 0;
                 updateOrderSummary();
                 form.reset();
             });
+            
+            // Close confirmation modal
+            closeConfirmation.addEventListener('click', function() {
+                orderConfirmation.classList.add('hidden');
+            });
+            
+            // Vendor functionality
+            function updateVendorStats() {
+                const today = new Date().toDateString();
+                const todayOrders = orders.filter(order => new Date(order.timestamp).toDateString() === today);
+                const pendingOrders = orders.filter(order => order.status !== 'completed').length;
+                
+                vendorTodayOrders.textContent = todayOrders.length;
+                vendorPendingOrders.textContent = pendingOrders;
+            }
+            
+            function displayVendorOrders() {
+                if (orders.length === 0) {
+                    vendorOrdersList.innerHTML = '<p class="text-center text-gray-500 py-4">No orders yet</p>';
+                    return;
+                }
+                
+                vendorOrdersList.innerHTML = '';
+                
+                orders.forEach(order => {
+                    const orderElement = document.createElement('div');
+                    orderElement.className = 'bg-amber-50 p-3 rounded-lg cursor-pointer hover:bg-amber-100 transition';
+                    orderElement.innerHTML = `
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold">${order.id}</h4>
+                            <span class="text-xs ${getStatusClass(order.status)} px-2 py-1 rounded-full">${order.status}</span>
+                        </div>
+                        <p class="text-sm">${order.customerName}</p>
+                        <p class="text-sm">$${order.total.toFixed(2)}</p>
+                        <p class="text-xs text-gray-500">${new Date(order.timestamp).toLocaleString()}</p>
+                    `;
+                    
+                    orderElement.addEventListener('click', function() {
+                        showVendorOrderDetails(order);
+                    });
+                    
+                    vendorOrdersList.appendChild(orderElement);
+                });
+            }
+            
+            function showVendorOrderDetails(order) {
+                vendorOrderContent.innerHTML = `
+                    <p><strong>Order ID:</strong> ${order.id}</p>
+                    <p><strong>Customer:</strong> ${order.customerName}</p>
+                    <p><strong>Phone:</strong> ${order.customerPhone}</p>
+                    <p><strong>Email:</strong> ${order.customerEmail}</p>
+                    <p><strong>Address:</strong> ${order.customerAddress}</p>
+                    <p><strong>Delivery:</strong> ${new Date(order.deliveryTime).toLocaleString()}</p>
+                    <p><strong>Status:</strong> <span class="${getStatusClass(order.status)} px-2 py-1 rounded-full">${order.status}</span></p>
+                    
+                    <div class="mt-3">
+                        <strong>Items:</strong>
+                        <ul class="list-disc list-inside mt-1">
+                            ${order.items.map(item => `<li>${item.quantity}x ${item.name} - $${(item.quantity * item.price).toFixed(2)}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <p class="mt-3"><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+                    <p class="mt-1"><strong>Instructions:</strong> ${order.specialInstructions || 'None'}</p>
+                `;
+                
+                vendorOrderStatus.value = order.status;
+                vendorOrderDetails.classList.remove('hidden');
+                
+                // Store current order ID for update
+                vendorUpdateStatus.dataset.orderId = order.id;
+                vendorSendEmail.dataset.orderEmail = order.customerEmail;
+                vendorSendWhatsapp.dataset.orderPhone = order.customerPhone;
+                
+                // Reset message templates
+                messageTemplates.forEach(t => t.classList.remove('active'));
+                selectedTemplate = null;
+                vendorCustomMessage.value = '';
+                
+                // Display message history
+                displayMessageHistory(order);
+            }
+            
+            function displayMessageHistory(order) {
+                vendorMessageHistory.innerHTML = '';
+                
+                if (!order.messages || order.messages.length === 0) {
+                    vendorMessageHistory.innerHTML = '<p class="text-center text-gray-500 py-4">No messages sent yet</p>';
+                    return;
+                }
+                
+                order.messages.forEach(message => {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'customer-message';
+                    messageElement.innerHTML = `
+                        <p class="text-sm font-medium">${message.type} - ${new Date(message.timestamp).toLocaleString()}</p>
+                        <p class="text-sm mt-1">${message.content}</p>
+                    `;
+                    vendorMessageHistory.appendChild(messageElement);
+                });
+            }
+            
+            function getStatusClass(status) {
+                switch(status) {
+                    case 'new': return 'order-status-new';
+                    case 'preparing': return 'order-status-preparing';
+                    case 'ready': return 'order-status-ready';
+                    case 'completed': return 'order-status-completed';
+                    default: return 'order-status-new';
+                }
+            }
+            
+            // Update order status
+            vendorUpdateStatus.addEventListener('click', function() {
+                const orderId = this.dataset.orderId;
+                const newStatus = vendorOrderStatus.value;
+                
+                const orderIndex = orders.findIndex(order => order.id === orderId);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = newStatus;
+                    localStorage.setItem('abbasDelightOrders', JSON.stringify(orders));
+                    
+                    // Update display
+                    displayVendorOrders();
+                    updateVendorStats();
+                    
+                    alert(`Order status updated to ${newStatus}`);
+                }
+            });
+            
+            // Send email to customer
+            vendorSendEmail.addEventListener('click', function() {
+                const customerEmail = this.dataset.orderEmail;
+                const message = vendorCustomMessage.value || "Thank you for your order from Abba's Delight!";
+                const subject = `Your Abba's Delight Order Update`;
+                const orderId = vendorUpdateStatus.dataset.orderId;
+                
+                if (!customerEmail) {
+                    alert('No customer email available for this order.');
+                    return;
+                }
+                
+                if (!message.trim()) {
+                    alert('Please enter a message to send.');
+                    return;
+                }
+                
+                // Record the message for reference
+                recordCustomerMessage(orderId, 'Email', message);
+                
+                // Create mailto link
+                const mailtoLink = `mailto:${customerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+                window.open(mailtoLink, '_blank');
+                
+                alert(`Email ready to be sent to: ${customerEmail}`);
+            });
+            
+            // Send WhatsApp message to customer
+            vendorSendWhatsapp.addEventListener('click', function() {
+                const customerPhone = this.dataset.orderPhone;
+                const message = vendorCustomMessage.value || "Thank you for your order from Abba's Delight!";
+                const orderId = vendorUpdateStatus.dataset.orderId;
+                
+                if (!customerPhone) {
+                    alert('No customer phone number available for this order.');
+                    return;
+                }
+                
+                if (!message.trim()) {
+                    alert('Please enter a message to send.');
+                    return;
+                }
+                
+                // Record the message for reference
+                recordCustomerMessage(orderId, 'WhatsApp', message);
+                
+                // Format phone number (remove any non-digit characters)
+                const formattedPhone = customerPhone.replace(/\D/g, '');
+                
+                // Create WhatsApp link
+                const whatsappLink = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappLink, '_blank');
+                
+                alert(`WhatsApp message ready to be sent to: ${customerPhone}`);
+            });
+            
+            // Record customer message for reference
+            function recordCustomerMessage(orderId, type, content) {
+                const orderIndex = orders.findIndex(order => order.id === orderId);
+                if (orderIndex !== -1) {
+                    if (!orders[orderIndex].messages) {
+                        orders[orderIndex].messages = [];
+                    }
+                    
+                    orders[orderIndex].messages.push({
+                        type: type,
+                        content: content,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    localStorage.setItem('abbasDelightOrders', JSON.stringify(orders));
+                    
+                    // Update message history display
+                    if (vendorUpdateStatus.dataset.orderId === orderId) {
+                        displayMessageHistory(orders[orderIndex]);
+                    }
+                }
+            }
+            
+            // Send automatic confirmation message to customer
+            function sendAutomaticConfirmation(order) {
+                const confirmationMessage = `Hi ${order.customerName}, thank you for your order #${order.id} from Abba's Delight! Your order has been received and is being processed. We'll contact you shortly with updates. Order total: $${order.total.toFixed(2)}.`;
+                
+                // Record the automatic confirmation message
+                recordCustomerMessage(order.id, 'Auto-Confirmation', confirmationMessage);
+                
+                // In a real implementation, you would send this via email or SMS
+                console.log(`Automatic confirmation sent to customer: ${order.customerEmail}`);
+            }
+            
+            // Save vendor settings
+            vendorSaveSettings.addEventListener('click', function() {
+                const emailNotifications = document.getElementById('vendor-email-notifications').checked;
+                const soundAlerts = document.getElementById('vendor-sound-alerts').checked;
+                const notificationEmail = document.getElementById('vendor-notification-email').value;
+                
+                const settings = {
+                    emailNotifications,
+                    soundAlerts,
+                    notificationEmail
+                };
+                
+                localStorage.setItem('abbasDelightVendorSettings', JSON.stringify(settings));
+                alert('Settings saved successfully!');
+            });
+            
+            // Load vendor settings
+            const savedSettings = JSON.parse(localStorage.getItem('abbasDelightVendorSettings'));
+            if (savedSettings) {
+                document.getElementById('vendor-email-notifications').checked = savedSettings.emailNotifications;
+                document.getElementById('vendor-sound-alerts').checked = savedSettings.soundAlerts;
+                document.getElementById('vendor-notification-email').value = savedSettings.notificationEmail;
+            }
+            
+            // Send vendor notification
+            function sendVendorNotification(order) {
+                const settings = JSON.parse(localStorage.getItem('abbasDelightVendorSettings')) || {};
+                
+                // Send email notification if enabled
+                if (settings.emailNotifications !== false) { // Default to true
+                    const vendorEmail = settings.notificationEmail || 'orders@0xhephzibah@gmail.com';
+                    sendEmailNotification(order, vendorEmail);
+                }
+                
+                // Play sound if enabled
+                if (settings.soundAlerts !== false) { // Default to true
+                    playNotificationSound();
+                }
+                
+                // Update vendor dashboard
+                updateVendorStats();
+                displayVendorOrders();
+            }
+            
+            function sendEmailNotification(order, vendorEmail) {
+                const subject = `New Order #${order.id} from Abba's Delight`;
+                const body = `
+New Order Received!
+
+Order #: ${order.id}
+Customer: ${order.customerName}
+Phone: ${order.customerPhone}
+Email: ${order.customerEmail}
+Delivery Address: ${order.customerAddress}
+Delivery Time: ${new Date(order.deliveryTime).toLocaleString()}
+
+Order Items:
+${order.items.map(item => `- ${item.quantity}x ${item.name} - $${(item.quantity * item.price).toFixed(2)}`).join('\n')}
+
+Total: $${order.total.toFixed(2)}
+Special Instructions: ${order.specialInstructions || 'None'}
+
+Please prepare this order for delivery.
+
+Thank you,
+Abba's Delight System
+                `;
+                
+                // In a real application, you would send this via a server
+                // For demo purposes, we'll just log it
+                console.log(`Email sent to: ${vendorEmail}`);
+                console.log(`Subject: ${subject}`);
+                console.log(`Body: ${body}`);
+                
+                // Simulate sending email
+                setTimeout(() => {
+                    console.log("Email notification sent successfully");
+                }, 1000);
+            }
+            
+            function playNotificationSound() {
+                // Create a simple notification sound
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (e) {
+                    console.log("Audio context not supported");
+                }
+            }
         });
     </script>
 </body>
