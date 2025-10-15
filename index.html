@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abba's Delight - Premium Bakery</title>
+    <title>Abba's Delight - Simple Backend Simulation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -145,9 +145,28 @@
             margin: 10px 0;
             border-radius: 4px;
         }
+        .backend-status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1001;
+        }
+        .backend-status.connected {
+            background: #28a745;
+        }
     </style>
 </head>
 <body class="bg-amber-50">
+    <!-- Backend Status Indicator -->
+    <div class="backend-status" id="backend-status">
+        ⚠️ Backend Not Connected - Using Local Storage
+    </div>
+
     <!-- Vendor Panel Toggle -->
     <div class="vendor-toggle" id="vendor-toggle">
         Vendor Panel
@@ -249,32 +268,20 @@
                 </div>
             </div>
 
-            <!-- Notification Settings -->
+            <!-- Backend Setup Instructions -->
             <div class="mt-6 pt-6 border-t">
-                <h3 class="font-bold mb-3">Notification Settings</h3>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span>Email Notifications</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="vendor-email-notifications" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        </label>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span>Sound Alerts</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="vendor-sound-alerts" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                        </label>
-                    </div>
+                <h3 class="font-bold mb-3">Backend Setup</h3>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-blue-800 mb-2">
+                        <strong>To enable full backend functionality:</strong>
+                    </p>
+                    <ol class="text-sm text-blue-700 list-decimal list-inside space-y-1">
+                        <li>Install Node.js from <a href="https://nodejs.org" target="_blank" class="underline">nodejs.org</a></li>
+                        <li>Run <code class="bg-blue-200 px-1 rounded">npm install</code> in this folder</li>
+                        <li>Run <code class="bg-blue-200 px-1 rounded">node server.js</code> to start backend</li>
+                        <li>Refresh this page</li>
+                    </ol>
                 </div>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium mb-1">Notification Email</label>
-                    <input type="email" id="vendor-notification-email" value="0xhephzibah@gmail.com" class="w-full p-2 border rounded">
-                </div>
-                <button id="vendor-save-settings" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 px-4 rounded mt-4">
-                    Save Settings
-                </button>
             </div>
         </div>
     </div>
@@ -723,6 +730,9 @@
             AOS.init();
             feather.replace();
             
+            // Check backend connection
+            checkBackendConnection();
+            
             // Mobile menu functionality
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const closeMenuButton = document.getElementById('close-menu');
@@ -770,7 +780,6 @@
             const vendorSendEmail = document.getElementById('vendor-send-email');
             const vendorSendWhatsapp = document.getElementById('vendor-send-whatsapp');
             const vendorCustomMessage = document.getElementById('vendor-custom-message');
-            const vendorSaveSettings = document.getElementById('vendor-save-settings');
             const vendorMessageHistory = document.getElementById('vendor-message-history');
             const messageTemplates = document.querySelectorAll('.message-template');
             
@@ -781,6 +790,20 @@
             // Initialize vendor dashboard
             updateVendorStats();
             displayVendorOrders();
+            
+            // Check backend connection
+            async function checkBackendConnection() {
+                try {
+                    const response = await fetch('http://localhost:3000/health');
+                    if (response.ok) {
+                        const statusElement = document.getElementById('backend-status');
+                        statusElement.textContent = '✅ Backend Connected - Full Functionality Available';
+                        statusElement.className = 'backend-status connected';
+                    }
+                } catch (error) {
+                    console.log('Backend not available, using local storage');
+                }
+            }
             
             // Message template selection
             let selectedTemplate = null;
@@ -900,7 +923,7 @@
             }
             
             // Complete order button
-            completeOrderButton.addEventListener('click', function() {
+            completeOrderButton.addEventListener('click', async function() {
                 const form = document.getElementById('order-form');
                 const customerName = document.getElementById('customer-name').value;
                 const customerPhone = document.getElementById('customer-phone').value;
@@ -930,34 +953,68 @@
                     return;
                 }
                 
-                // Create order object
-                const order = {
-                    id: 'AD' + Date.now(),
+                // Try to submit to backend first
+                const orderData = {
                     customerName,
                     customerPhone,
                     customerEmail,
                     customerAddress,
                     deliveryTime,
                     specialInstructions,
-                    items: [...cart],
-                    total: parseFloat(orderTotal.textContent.replace('₽', '')),
-                    status: 'new',
-                    timestamp: new Date().toISOString(),
-                    messages: [] // Initialize empty messages array
+                    items: cart
                 };
                 
-                // Add to orders
-                orders.unshift(order);
-                localStorage.setItem('abbasDelightOrders', JSON.stringify(orders));
+                let orderSubmitted = false;
                 
-                // Send vendor notification
-                sendVendorNotification(order);
+                try {
+                    const response = await fetch('http://localhost:3000/api/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            orderSubmitted = true;
+                            console.log('Order submitted to backend:', result.data.orderId);
+                        }
+                    }
+                } catch (error) {
+                    console.log('Backend not available, using local storage');
+                }
                 
-                // Send automatic confirmation message to customer
-                sendAutomaticConfirmation(order);
+                // If backend submission failed, use local storage
+                if (!orderSubmitted) {
+                    // Create order object
+                    const order = {
+                        id: 'AD' + Date.now(),
+                        customerName,
+                        customerPhone,
+                        customerEmail,
+                        customerAddress,
+                        deliveryTime,
+                        specialInstructions,
+                        items: [...cart],
+                        total: parseFloat(orderTotal.textContent.replace('₽', '')),
+                        status: 'new',
+                        timestamp: new Date().toISOString(),
+                        messages: []
+                    };
+                    
+                    // Add to orders
+                    orders.unshift(order);
+                    localStorage.setItem('abbasDelightOrders', JSON.stringify(orders));
+                    
+                    // Update vendor dashboard
+                    updateVendorStats();
+                    displayVendorOrders();
+                }
                 
                 // Show confirmation
-                confirmedOrderId.textContent = order.id;
+                confirmedOrderId.textContent = orderData.customerName;
                 orderConfirmation.classList.remove('hidden');
                 
                 // Reset cart and form
@@ -974,7 +1031,7 @@
             // Vendor functionality
             function updateVendorStats() {
                 const today = new Date().toDateString();
-                const todayOrders = orders.filter(order => new Date(order.timestamp).toDateString() === today);
+                const todayOrders = orders.filter(order => new Date(order.createdAt || order.timestamp).toDateString() === today);
                 const pendingOrders = orders.filter(order => order.status !== 'completed').length;
                 
                 vendorTodayOrders.textContent = todayOrders.length;
@@ -999,7 +1056,7 @@
                         </div>
                         <p class="text-sm">${order.customerName}</p>
                         <p class="text-sm">${order.total.toFixed(2)}₽</p>
-                        <p class="text-xs text-gray-500">${new Date(order.timestamp).toLocaleString()}</p>
+                        <p class="text-xs text-gray-500">${new Date(order.createdAt || order.timestamp).toLocaleString()}</p>
                     `;
                     
                     orderElement.addEventListener('click', function() {
@@ -1078,28 +1135,68 @@
             }
             
             // Update order status
-            vendorUpdateStatus.addEventListener('click', function() {
+            vendorUpdateStatus.addEventListener('click', async function() {
                 const orderId = this.dataset.orderId;
                 const newStatus = vendorOrderStatus.value;
+                const message = vendorCustomMessage.value;
                 
-                const orderIndex = orders.findIndex(order => order.id === orderId);
-                if (orderIndex !== -1) {
-                    orders[orderIndex].status = newStatus;
-                    localStorage.setItem('abbasDelightOrders', JSON.stringify(orders));
+                if (!orderId) return;
+                
+                // Try to update via backend first
+                try {
+                    const response = await fetch(`http://localhost:3000/api/vendor/orders/${orderId}/status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: newStatus, message })
+                    });
                     
-                    // Update display
-                    displayVendorOrders();
-                    updateVendorStats();
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            // Update local order
+                            const orderIndex = orders.findIndex(o => o.id === orderId);
+                            if (orderIndex !== -1) {
+                                orders[orderIndex] = result.data.order;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log('Backend not available, using local storage');
                     
-                    alert(`Order status updated to ${newStatus}`);
+                    // Fallback to local storage
+                    const orderIndex = orders.findIndex(o => o.id === orderId);
+                    if (orderIndex !== -1) {
+                        orders[orderIndex].status = newStatus;
+                        orders[orderIndex].updatedAt = new Date().toISOString();
+                        
+                        if (message) {
+                            if (!orders[orderIndex].messages) {
+                                orders[orderIndex].messages = [];
+                            }
+                            orders[orderIndex].messages.push({
+                                id: Date.now().toString(),
+                                type: 'status_update',
+                                content: message,
+                                timestamp: new Date().toISOString()
+                            });
+                        }
+                        
+                        localStorage.setItem('abbasDelightOrders', JSON.stringify(orders));
+                    }
                 }
+                
+                // Update display
+                displayVendorOrders();
+                updateVendorStats();
+                alert(`Order status updated to ${newStatus}`);
             });
             
             // Send email to customer
             vendorSendEmail.addEventListener('click', function() {
                 const customerEmail = this.dataset.orderEmail;
                 const message = vendorCustomMessage.value || "Thank you for your order from Abba's Delight!";
-                const subject = `Your Abba's Delight Order Update`;
                 const orderId = vendorUpdateStatus.dataset.orderId;
                 
                 if (!customerEmail) {
@@ -1116,7 +1213,7 @@
                 recordCustomerMessage(orderId, 'Email', message);
                 
                 // Create mailto link
-                const mailtoLink = `mailto:${customerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+                const mailtoLink = `mailto:${customerEmail}?subject=Update on your order #${orderId}&body=${encodeURIComponent(message)}`;
                 window.open(mailtoLink, '_blank');
                 
                 alert(`Email ready to be sent to: ${customerEmail}`);
@@ -1160,6 +1257,7 @@
                     }
                     
                     orders[orderIndex].messages.push({
+                        id: Date.now().toString(),
                         type: type,
                         content: content,
                         timestamp: new Date().toISOString()
@@ -1171,120 +1269,6 @@
                     if (vendorUpdateStatus.dataset.orderId === orderId) {
                         displayMessageHistory(orders[orderIndex]);
                     }
-                }
-            }
-            
-            // Send automatic confirmation message to customer
-            function sendAutomaticConfirmation(order) {
-                const confirmationMessage = `Hi ${order.customerName}, thank you for your order #${order.id} from Abba's Delight! Your order has been received and is being processed. We'll contact you shortly with updates. Order total: ${order.total.toFixed(2)}₽.`;
-                
-                // Record the automatic confirmation message
-                recordCustomerMessage(order.id, 'Auto-Confirmation', confirmationMessage);
-                
-                // In a real implementation, you would send this via email or SMS
-                console.log(`Automatic confirmation sent to customer: ${order.customerEmail}`);
-            }
-            
-            // Save vendor settings
-            vendorSaveSettings.addEventListener('click', function() {
-                const emailNotifications = document.getElementById('vendor-email-notifications').checked;
-                const soundAlerts = document.getElementById('vendor-sound-alerts').checked;
-                const notificationEmail = document.getElementById('vendor-notification-email').value;
-                
-                const settings = {
-                    emailNotifications,
-                    soundAlerts,
-                    notificationEmail
-                };
-                
-                localStorage.setItem('abbasDelightVendorSettings', JSON.stringify(settings));
-                alert('Settings saved successfully!');
-            });
-            
-            // Load vendor settings
-            const savedSettings = JSON.parse(localStorage.getItem('abbasDelightVendorSettings'));
-            if (savedSettings) {
-                document.getElementById('vendor-email-notifications').checked = savedSettings.emailNotifications;
-                document.getElementById('vendor-sound-alerts').checked = savedSettings.soundAlerts;
-                document.getElementById('vendor-notification-email').value = savedSettings.notificationEmail;
-            }
-            
-            // Send vendor notification
-            function sendVendorNotification(order) {
-                const settings = JSON.parse(localStorage.getItem('abbasDelightVendorSettings')) || {};
-                
-                // Send email notification if enabled
-                if (settings.emailNotifications !== false) { // Default to true
-                    const vendorEmail = settings.notificationEmail || '0xhephzibah@gmail.com';
-                    sendEmailNotification(order, vendorEmail);
-                }
-                
-                // Play sound if enabled
-                if (settings.soundAlerts !== false) { // Default to true
-                    playNotificationSound();
-                }
-                
-                // Update vendor dashboard
-                updateVendorStats();
-                displayVendorOrders();
-            }
-            
-            function sendEmailNotification(order, vendorEmail) {
-                const subject = `New Order #${order.id} from Abba's Delight`;
-                const body = `
-New Order Received!
-
-Order #: ${order.id}
-Customer: ${order.customerName}
-Phone: ${order.customerPhone}
-Email: ${order.customerEmail}
-Delivery Address: ${order.customerAddress}
-Delivery Time: ${new Date(order.deliveryTime).toLocaleString()}
-
-Order Items:
-${order.items.map(item => `- ${item.quantity}x ${item.name} - ${(item.quantity * item.price).toFixed(2)}₽`).join('\n')}
-
-Total: ${order.total.toFixed(2)}₽
-Special Instructions: ${order.specialInstructions || 'None'}
-
-Please prepare this order for delivery.
-
-Thank you,
-Abba's Delight System
-                `;
-                
-                // In a real application, you would send this via a server
-                // For demo purposes, we'll just log it
-                console.log(`Email sent to: ${vendorEmail}`);
-                console.log(`Subject: ${subject}`);
-                console.log(`Body: ${body}`);
-                
-                // Simulate sending email
-                setTimeout(() => {
-                    console.log("Email notification sent successfully");
-                }, 1000);
-            }
-            
-            function playNotificationSound() {
-                // Create a simple notification sound
-                try {
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.value = 800;
-                    oscillator.type = 'sine';
-                    
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.5);
-                } catch (e) {
-                    console.log("Audio context not supported");
                 }
             }
         });
